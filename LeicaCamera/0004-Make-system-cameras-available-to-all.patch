@@ -1,0 +1,39 @@
+From 3b63ffaa355d4199e5f18cec091c936fb697a979 Mon Sep 17 00:00:00 2001
+From: Adithya R <gh0strider.2k18.reborn@gmail.com>
+Date: Tue, 3 Aug 2021 20:27:06 +0530
+Subject: [PATCH] HACK: libcameraservice: Make system cameras available to all
+ camera apps
+
+ * big brained realmeme decided to move aux cams to "system-only cameras"
+   utilizing the new permission introduced in android 11, thereby breaking
+   aux cams in 3rd party camera apps like gcam
+
+ * lets avoid this and make system camera accessible to all camera apps;
+   legacy apps still wont break because of the aux cams check in fwb
+
+Test: manual, aux cameras accessible by gcam on realme X3
+Change-Id: I5db53ffe91a8c28972f1c58bd228cb0f79d7183a
+Signed-off-by: Adithya R <gh0strider.2k18.reborn@gmail.com>
+---
+ services/camera/libcameraservice/CameraService.cpp | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/services/camera/libcameraservice/CameraService.cpp b/services/camera/libcameraservice/CameraService.cpp
+index a144cf3aa2..2c2625e18a 100644
+--- a/services/camera/libcameraservice/CameraService.cpp
++++ b/services/camera/libcameraservice/CameraService.cpp
+@@ -716,13 +716,10 @@ static bool hasPermissionsForSystemCamera(int callingPid, int callingUid) {
+     AttributionSourceState attributionSource{};
+     attributionSource.pid = callingPid;
+     attributionSource.uid = callingUid;
+-    bool checkPermissionForSystemCamera = permissionChecker.checkPermissionForPreflight(
+-            sSystemCameraPermission, attributionSource, String16(), AppOpsManager::OP_NONE)
+-            != permission::PermissionChecker::PERMISSION_HARD_DENIED;
+     bool checkPermissionForCamera = permissionChecker.checkPermissionForPreflight(
+             sCameraPermission, attributionSource, String16(), AppOpsManager::OP_NONE)
+             != permission::PermissionChecker::PERMISSION_HARD_DENIED;
+-    return checkPermissionForSystemCamera && checkPermissionForCamera;
++    return checkPermissionForCamera;
+ }
+ 
+ Status CameraService::getNumberOfCameras(int32_t type, int32_t* numCameras) {

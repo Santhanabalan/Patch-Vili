@@ -1,0 +1,42 @@
+From 192102fb0447d90cc92f21469319bda091531018 Mon Sep 17 00:00:00 2001
+From: Lostark13 <tushar9915@gmail.com>
+Date: Sat, 25 Mar 2023 15:53:40 +0000
+Subject: [PATCH] cameraserver: Let multiple cameras opened by stock camera
+ application
+
+Let conflicting camera devices list be empty and let the camera hal manage it.
+Old camera hals mark camera device as conflicting if the new camera device is opened.
+Fixes dual video camera mode for old devices
+
+Change-Id: I2043dee762ddcef96432e440cc6017181950a4c3
+Signed-off-by: Lostark13 <tushar9915@gmail.com>
+Signed-off-by: chrisl7 <wandersonrodriguesf1@gmail.com>
+---
+ services/camera/libcameraservice/CameraService.cpp | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/services/camera/libcameraservice/CameraService.cpp b/services/camera/libcameraservice/CameraService.cpp
+index 2c2625e18a..081ce6c0aa 100644
+--- a/services/camera/libcameraservice/CameraService.cpp
++++ b/services/camera/libcameraservice/CameraService.cpp
+@@ -1630,6 +1630,10 @@ void CameraService::finishConnectLocked(const sp<BasicClient>& client,
+                     oomScoreOffset, systemNativeClient);
+     auto evicted = mActiveClientManager.addAndEvict(clientDescriptor);
+ 
++    if (strcmp(String8(client->getPackageName()).string(), "com.android.camera") == 0) {
++        evicted.clear();
++    }
++
+     logConnected(desc->getKey(), static_cast<int>(desc->getOwnerId()),
+             String8(client->getPackageName()));
+ 
+@@ -1739,6 +1743,9 @@ status_t CameraService::handleEvictionsLocked(const String8& cameraId, int clien
+         // Find clients that would be evicted
+         auto evicted = mActiveClientManager.wouldEvict(clientDescriptor);
+ 
++        if (strcmp(String8(packageName).string(), "com.android.camera") == 0) {
++            evicted.clear();
++        }
+         // If the incoming client was 'evicted,' higher priority clients have the camera in the
+         // background, so we cannot do evictions
+         if (std::find(evicted.begin(), evicted.end(), clientDescriptor) != evicted.end()) {

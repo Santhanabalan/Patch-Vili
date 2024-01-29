@@ -1,0 +1,33 @@
+From 737f8af064b3b500b87859ed2181e312a4c1c03d Mon Sep 17 00:00:00 2001
+From: Pierre-Hugues Husson <phh@phh.me>
+Date: Sat, 7 Aug 2021 11:11:39 +0200
+Subject: [PATCH] camera: Expose aux cameras in third party apps
+
+Change-Id: Iba95bf2450be20f85c1e5db81ee5d1b950d6d497
+Signed-off-by: SamarV-121 <samarvispute121@pm.me>
+Signed-off-by: ImFlynnn <ahmadzaid13.az@gmail.com>
+Signed-off-by: Nishant Kumar <www.rajsonu13@gmail.com>
+---
+ .../libcameraservice/common/CameraProviderManager.cpp    | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/services/camera/libcameraservice/common/CameraProviderManager.cpp b/services/camera/libcameraservice/common/CameraProviderManager.cpp
+index fac6e4e189..06c1b71c0a 100644
+--- a/services/camera/libcameraservice/common/CameraProviderManager.cpp
++++ b/services/camera/libcameraservice/common/CameraProviderManager.cpp
+@@ -972,15 +972,6 @@ SystemCameraKind CameraProviderManager::ProviderInfo::DeviceInfo3::getSystemCame
+             entryCap.data.u8[0] == ANDROID_REQUEST_AVAILABLE_CAPABILITIES_SECURE_IMAGE_DATA) {
+         return SystemCameraKind::HIDDEN_SECURE_CAMERA;
+     }
+-
+-    // Go through the capabilities and check if it has
+-    // ANDROID_REQUEST_AVAILABLE_CAPABILITIES_SYSTEM_CAMERA
+-    for (size_t i = 0; i < entryCap.count; ++i) {
+-        uint8_t capability = entryCap.data.u8[i];
+-        if (capability == ANDROID_REQUEST_AVAILABLE_CAPABILITIES_SYSTEM_CAMERA) {
+-            return SystemCameraKind::SYSTEM_ONLY_CAMERA;
+-        }
+-    }
+     return SystemCameraKind::PUBLIC;
+ }
+ 
